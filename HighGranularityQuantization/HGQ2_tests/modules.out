@@ -1,8 +1,44 @@
-(hgq2) [u6059911@notchpeak1:~]$ module list
+(hgq2) [u6059911@notchpeak1:HGQ2_tests]$ pip show tensorflow keras HGQ2
+Name: tensorflow
+Version: 2.17.0
+Summary: TensorFlow is an open source machine learning framework for everyone.
+Home-page: https://www.tensorflow.org/
+Author: Google Inc.
+Author-email: packages@tensorflow.org
+License: Apache 2.0
+Location: /uufs/chpc.utah.edu/common/home/u6059911/software/pkg/miniconda3/envs/hgq2/lib/python3.10/site-packages
+Requires: absl-py, astunparse, flatbuffers, gast, google-pasta, grpcio, h5py, keras, libclang, ml-dtypes, numpy, opt-einsum, packaging, protobuf, requests, setuptools, six, tensorboard, tensorflow-io-gcs-filesystem, termcolor, typing-extensions, wrapt
+Required-by: 
+---
+Name: keras
+Version: 3.11.3
+Summary: Multi-backend Keras
+Home-page: 
+Author: 
+Author-email: Keras team <keras-users@googlegroups.com>
+License: Apache License 2.0
+Location: /uufs/chpc.utah.edu/common/home/u6059911/software/pkg/miniconda3/envs/hgq2/lib/python3.10/site-packages
+Requires: absl-py, h5py, ml-dtypes, namex, numpy, optree, packaging, rich
+Required-by: hgq2, tensorflow
+---
+Name: hgq2
+Version: 0.1.1
+Summary: High Granularity Quantization 2
+Home-page: 
+Author: 
+Author-email: Chang Sun <chsun@cern.ch>
+License: GNU Lesser General Public License v3 (LGPLv3)
+Location: /uufs/chpc.utah.edu/common/home/u6059911/software/pkg/miniconda3/envs/hgq2/lib/python3.10/site-packages
+Requires: keras, quantizers, tqdm
+Required-by: 
+(hgq2) [u6059911@notchpeak1:HGQ2_tests]$ module list
 
 Currently Loaded Modules:
-  1) chpc/1.0 (S)   2) miniconda3/latest   3) cuda/12.5.0 (g)   4) cudnn/9.2.0.82-12-gpu
+  1) chpc/1.0 (S)   2) miniconda3/latest   3) cuda/12.3.0 (g)   4) cudnn/8.9.7.29-12-gpu
 
   Where:
    S:  Module is Sticky, requires --force to unload or purge
    g:  built for GPU
+
+ 
+
