@@ -50,6 +50,13 @@ model.compile(
     metrics=["accuracy"]
 )
 
+# ==========
+# 4. Inspect all trainable variables (once)
+# ==========
+print("\nListing all trainable variables (name, shape, min, max, mean):\n")
+for var in model.trainable_variables:
+    print(f"{var.name:40s} | shape: {var.shape} | min: {tf.reduce_min(var).numpy():.6f} | max: {tf.reduce_max(var).numpy():.6f} | mean: {tf.reduce_mean(var).numpy():.6f}")
+
 
 # ==========
 # 2b. Gradient check before training
