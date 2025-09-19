@@ -34,8 +34,8 @@ print("Building HGQ model...")
 model = keras.models.Sequential([
 #    HQuantize(beta=1, name="quant_in", input_shape=(784,)),                # cuantización de entrada
     HQuantize(beta=0, input_shape=(784,), paq_conf=paq_conf),
-    HDense(64, beta=0, activation="relu", kq_conf=kq_conf_8),    # capa densa cuantizada
-    HDense(10, activation=None, beta=0, kq_conf=kq_conf_4),    # otra capa cuantizada
+    HDense(64, beta=1e-5, activation="relu", kq_conf=kq_conf_8),    # capa densa cuantizada
+    HDense(10, activation=None, beta=1e-5, kq_conf=kq_conf_4),    # otra capa cuantizada
 #    Dense(10, activation="softmax")               # salida cuantizada
 ])
 
