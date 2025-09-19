@@ -31,9 +31,9 @@ kq_conf_4['init_bw'] = 7   # second dense layer with 7-bit weights
 
 print("Building HGQ model...")
 model = keras.models.Sequential([
-    HQuantize(beta=0, input_shape=(784,), paq_conf=paq_conf),
-    HDense(64, beta=0, activation="relu", kq_conf=kq_conf_8),
-    HDense(10, activation=None, beta=0, kq_conf=kq_conf_4),
+    HQuantize(beta=5e-6, input_shape=(784,), paq_conf=paq_conf),
+    HDense(64, beta=5e-6, activation="relu", kq_conf=kq_conf_8),
+    HDense(10, activation=None, beta=5e-6, kq_conf=kq_conf_4),
 ])
 
 model.compile(

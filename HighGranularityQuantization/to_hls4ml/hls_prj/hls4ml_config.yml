@@ -61,7 +61,7 @@ OutputDir: hls_prj
 OutputPredictions: null
 Part: xc7z020clg484-1
 ProjectName: myproject
-Stamp: 2a7e0187
+Stamp: 2cf8e142
 Version: 1.0.0
 WriterConfig:
   Namespace: null
