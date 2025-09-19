@@ -8,14 +8,14 @@ from HGQ.utils.utils import get_default_kq_conf, get_default_paq_conf
 
 # Activation quantizer config (pre-activation)
 paq_conf = get_default_paq_conf()
-paq_conf['init_bw'] = 3   # start activations at 3 bits
+paq_conf['init_bw'] = 5   # start activations at 3 bits
 
 # Kernel quantizer config (weights)
 kq_conf_8 = get_default_kq_conf()
-kq_conf_8['init_bw'] = 8  # first dense layer with 8-bit weights
+kq_conf_8['init_bw'] = 10  # first dense layer with 8-bit weights
 
 kq_conf_4 = get_default_kq_conf()
-kq_conf_4['init_bw'] = 4  # second dense layer with 4-bit weights
+kq_conf_4['init_bw'] = 7  # second dense layer with 4-bit weights
 
 # ==========
 # 1. Datos (MNIST)
@@ -33,7 +33,7 @@ print(f"Test data shape: {x_test.shape}, Labels: {y_test.shape}\n")
 print("Building HGQ model...")
 model = keras.models.Sequential([
 #    HQuantize(beta=1, name="quant_in", input_shape=(784,)),                # cuantización de entrada
-    HQuantize(beta=0, input_shape=(784,), paq_conf=paq_conf),
+    HQuantize(beta=1e-5, input_shape=(784,), paq_conf=paq_conf),
     HDense(64, beta=1e-5, activation="relu", kq_conf=kq_conf_8),    # capa densa cuantizada
     HDense(10, activation=None, beta=1e-5, kq_conf=kq_conf_4),    # otra capa cuantizada
 #    Dense(10, activation="softmax")               # salida cuantizada
