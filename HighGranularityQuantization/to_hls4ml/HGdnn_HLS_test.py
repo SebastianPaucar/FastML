@@ -109,10 +109,11 @@ hls_model = hls4ml.converters.convert_from_keras_model(
     part=fpga_part
 )
 
-print("Building HLS project (C-simulation)...")
-report = hls_model.build()
-print("HLS project created in:", os.path.abspath(output_dir))
-
+#print("Building HLS project (C-simulation)...")
+#report = hls_model.build()
+#print("HLS project created in:", os.path.abspath(output_dir))
+hls_model.write()  # just writes the HLS project files
+print("HLS project files written to:", os.path.abspath(output_dir))
 # ==========
 # 7. Test predictions
 # ==========

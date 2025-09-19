@@ -1,0 +1,69 @@
+Backend: Vivado
+ClockPeriod: 5
+ClockUncertainty: 12.5%
+HLSConfig:
+  LayerName:
+    h_dense:
+      Precision:
+        bias: auto
+        result: auto
+        weight: auto
+      Trace: false
+    h_dense_1:
+      Precision:
+        bias: auto
+        result: auto
+        weight: auto
+      Trace: false
+    h_dense_1_linear:
+      Precision:
+        result: auto
+      Trace: false
+    h_dense_1_quantizer:
+      Precision:
+        result: auto
+      Trace: false
+    h_dense_linear:
+      Precision:
+        result: auto
+      Trace: false
+    h_dense_quantizer:
+      Precision:
+        result: auto
+      Trace: false
+    h_dense_relu_quantizer:
+      Precision:
+        result: auto
+      Trace: false
+    h_quantize:
+      Precision:
+        result: auto
+      Trace: false
+    input_1:
+      Precision:
+        result: auto
+      Trace: false
+    re_lu:
+      Precision:
+        result: auto
+      Trace: false
+  Model:
+    BramFactor: 1000000000
+    Precision:
+      default: fixed<16,6>
+    ReuseFactor: 1
+    Strategy: Latency
+    TraceOutput: false
+IOType: io_parallel
+InputData: null
+KerasModel: !keras_model 'hls_prj/keras_model.keras'
+OutputDir: hls_prj
+OutputPredictions: null
+Part: xc7z020clg484-1
+ProjectName: myproject
+Stamp: a9117e84
+Version: 1.0.0
+WriterConfig:
+  Namespace: null
+  WriteTar: false
+  WriteWeightsTxt: true
