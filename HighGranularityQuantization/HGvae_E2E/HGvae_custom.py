@@ -1,48 +1,17 @@
 import numpy as np
-
 import tensorflow as tf
-import tensorflow.keras.backend as K
-from tensorflow.keras import regularizers
-from tensorflow.keras.models import Sequential, Model, load_model
-from tensorflow.keras.layers import Dense, Activation, BatchNormalization, Input
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.regularizers import l1
-
-import qkeras
-from qkeras import QBatchNormalization
-from qkeras.qlayers import QDense, QActivation
-from qkeras.quantizers import quantized_bits, quantized_relu
-
-import tensorflow as tf
-K = tf.keras.backend
-Layer = tf.keras.layers.Layer
-keras = tf.keras
-
-
-####
+import keras
+from keras.layers import Layer
+from keras import layers
 from HGQ.layers import HQuantize, HDense, HActivation
 from HGQ.utils.utils import get_default_kq_conf, get_default_paq_conf
 from HGQ import ResetMinMax, FreeBOPs
-####
+from keras.models import Model
+K = tf.keras.backend
 
-'''
-# Reparameterization trick
-def sampling(args):
-    z_mean, z_log_var = args
-    eps = tf.random.normal(shape=tf.shape(z_mean))
-    return z_mean + tf.exp(0.5 * z_log_var) * eps
+tf.config.optimizer.set_jit(True)
 
-z = layers.Lambda(sampling)([z_mean, z_log_var])
 
-# Decoder
-decoder_inputs = keras.Input(shape=(latent_dim,))
-d = HQuantize(beta=0, paq_conf=paq_conf)(decoder_inputs)
-d = HDense(256, activation="relu", beta=0, kq_conf=kq_conf_4)(d)
-d = HDense(784, activation="linear", beta=0, kq_conf=kq_conf_4)(d)
-outputs = HActivation("sigmoid", beta=0, paq_conf=paq_conf)(d)
-decoder = keras.Model(decoder_inputs, outputs, name="decoder")
-decoded = decoder(z)
-''' 
 ############################################################################################
 #Encoder
 ############################################################################################
@@ -53,9 +22,10 @@ def get_encoder(config):
     features = config["features"]
     
     ap_initial_kernel = config["ap_fixed_kernel"]
-#    ap_initial_bias = config["ap_fixed_bias"]
     ap_initial_activation = config["ap_fixed_activation"]
     ap_initial_data = config["ap_fixed_data"]
+    # beta for EBOPs
+    beta = config["beta"]
 
     # Activation quantizer config (pre-activation)
     paq_conf = get_default_paq_conf()
@@ -63,7 +33,7 @@ def get_encoder(config):
     # Kernel quantizer config (weights)
     kq_conf = get_default_kq_conf()
     kq_conf['init_bw'] = ap_initial_kernel
-
+    
     
     
     encoder_input = keras.Input(shape=(features,))
@@ -112,23 +82,23 @@ def get_decoder(config):
     
     for i,node in enumerate(decoder_config["nodes"]):
         if i == 0:
-            x = Dense(node,name=f'hd_decoder{i+1}')(decoder_input)
+            x = layers.Dense(node,name=f'hd_decoder{i+1}')(decoder_input)
         
         else:
             if i == len(decoder_config["nodes"])-1: ## This is done to prevent blowup
-                x = Dense(node,
+                x = layers.Dense(node,
                           name=f'hd_decoder{i+1}',
                         #  kernel_initializer = tf.keras.initializers.RandomUniform(minval=-0.05, maxval=0.05, seed=None)
                          )(x)
             else:
-                x = Dense(node,
+                x = layers.Dense(node,
                           name=f'hd_decoder{i+1}'
                          )(x)
 
 
         if i!=len(decoder_config["nodes"])-1:
-            x = BatchNormalization(name=f'BN_decoder{i+1}')(x)
-            x = tf.keras.layers.ReLU()(x)
+            x = layers.BatchNormalization(name=f'BN_decoder{i+1}')(x)
+            x = layers.ReLU()(x)
     
     decoder = keras.Model(decoder_input,x, name="decoder")
 
@@ -193,12 +163,6 @@ class VariationalAutoEncoder(Model):
         self.encoder.get_layer('latent_log_var').set_weights([log_var_k*0, log_var_b*0])
         #####
 
-        print("Trainable variables (names):", [w.name for w in self.trainable_variables])
-        print("Verifying trainable layers and weights:")
-        for layer in self.encoder.layers:
-            for w in layer.trainable_weights:
-                print(f"Layer: {layer.name} | Weight: {w.name} | Shape: {w.shape}")
-
     def train_step(self, data):
         data_in, target = data
         with tf.GradientTape() as tape:
@@ -209,8 +173,6 @@ class VariationalAutoEncoder(Model):
             total_loss = reconstruction_loss + kl_loss
             total_loss += K.sum(self.encoder.losses) + K.sum(self.decoder.losses)
         grads = tape.gradient(total_loss, self.trainable_weights)
-
-
         self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
         self.total_loss_tracker.update_state(total_loss)
         self.reconstruction_loss_tracker.update_state(reconstruction_loss)
