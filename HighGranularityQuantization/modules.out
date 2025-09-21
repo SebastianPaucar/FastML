@@ -1,0 +1,12 @@
+(hgq) [u6059911@notchpeak1:~]$ module list
+
+Currently Loaded Modules:
+  1) chpc/1.0 (S)   2) miniconda3/latest   3) cuda/12.2.0 (g)   4) cudnn/8.9.3 (g)
+
+  Where:
+   S:  Module is Sticky, requires --force to unload or purge
+   g:  built for GPU
+
+ 
+
+
