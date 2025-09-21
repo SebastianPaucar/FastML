@@ -26,7 +26,6 @@ def get_encoder(config):
     ap_initial_data = config["ap_fixed_data"]
     # beta for EBOPs
     beta = config["beta"]
-
     # Activation quantizer config (pre-activation)
     paq_conf = get_default_paq_conf()
     paq_conf['init_bw'] = ap_initial_activation
@@ -37,7 +36,7 @@ def get_encoder(config):
     
     
     encoder_input = keras.Input(shape=(features,))
-    x = HQuantize(beta=0, paq_conf=ap_initial_data)(encoder_input)
+    x = HQuantize(beta=beta, paq_conf=ap_initial_data)(encoder_input)
         
     for i,node in enumerate(encoder_config["nodes"]):
             x = HDense(node,
@@ -88,7 +87,6 @@ def get_decoder(config):
             if i == len(decoder_config["nodes"])-1: ## This is done to prevent blowup
                 x = layers.Dense(node,
                           name=f'hd_decoder{i+1}',
-                        #  kernel_initializer = tf.keras.initializers.RandomUniform(minval=-0.05, maxval=0.05, seed=None)
                          )(x)
             else:
                 x = layers.Dense(node,
@@ -157,7 +155,7 @@ class VariationalAutoEncoder(Model):
         self.reconstruction_val_loss_tracker = keras.metrics.Mean(name="val_reco_loss")
         self.kl_val_loss_tracker = keras.metrics.Mean(name="val_kl_loss")
         ###.........
-        print("latent_log_var trainable:", self.encoder.get_layer('latent_log_var').trainable)
+
         ##### Taken from Chang
         log_var_k, log_var_b = self.encoder.get_layer('latent_log_var').get_weights()
         self.encoder.get_layer('latent_log_var').set_weights([log_var_k*0, log_var_b*0])
@@ -169,7 +167,7 @@ class VariationalAutoEncoder(Model):
             z_mean, z_log_var, z = self.encoder(data_in, training=True)
             reconstruction = self.decoder(z, training=True)
             reconstruction_loss = self.reco_scale * self.reco_loss(target, reconstruction)  # one value
-            kl_loss = self.kl_scale * self.kl_loss(z_mean, z_log_var)  # type: ignore
+            kl_loss = self.kl_scale * self.kl_loss(z_mean, z_log_var) 
             total_loss = reconstruction_loss + kl_loss
             total_loss += K.sum(self.encoder.losses) + K.sum(self.decoder.losses)
         grads = tape.gradient(total_loss, self.trainable_weights)
@@ -193,8 +191,7 @@ class VariationalAutoEncoder(Model):
         reconstruction = self.decoder(z)
 
         reconstruction_loss = self.reco_scale * self.reco_loss(target, reconstruction)
-        kl_loss = self.kl_scale * self.kl_loss(z_mean, z_log_var)  # type: ignore
-        # kl_loss = self.kl_scale * kl_div_multivariate_normal(z_mean)
+        kl_loss = self.kl_scale * self.kl_loss(z_mean, z_log_var) 
         total_loss = reconstruction_loss + kl_loss
         self.total_val_loss_tracker.update_state(total_loss)
         self.reconstruction_val_loss_tracker.update_state(reconstruction_loss)
