@@ -24,7 +24,7 @@ kq_conf_4["init_bw"] = 4  # decoder
 
 latent_dim = 16
 input_dim = 784  # 28x28 pixels in MNIST
-
+beta = 1e-6
 # ==========
 # 2. Dataset (MNIST)
 # ==========
@@ -41,10 +41,10 @@ print("Train:", x_train.shape, " Test:", x_test.shape)
 # ==========
 # Encoder
 inputs = keras.Input(shape=(784,))
-x = HQuantize(beta=0, paq_conf=paq_conf)(inputs)
-x = HDense(256, activation="relu", beta=0, kq_conf=kq_conf_8)(x)
-z_mean = HDense(latent_dim, beta=0, kq_conf=kq_conf_8, name="latent_mean")(x)
-z_log_var = HDense(latent_dim, beta=0, kq_conf=kq_conf_8, name="latent_log_var")(x)
+x = HQuantize(beta=beta, paq_conf=paq_conf)(inputs)
+x = HDense(256, activation="relu", beta=beta, kq_conf=kq_conf_8)(x)
+z_mean = HDense(latent_dim, beta=beta, kq_conf=kq_conf_8, name="latent_mean")(x)
+z_log_var = HDense(latent_dim, beta=beta, kq_conf=kq_conf_8, name="latent_log_var")(x)
 
 # Reparameterization trick
 def sampling(args):
@@ -57,11 +57,11 @@ z = layers.Lambda(sampling)([z_mean, z_log_var])
 # Decoder
 decoder_inputs = keras.Input(shape=(latent_dim,))
 d = HQuantize(beta=0, paq_conf=paq_conf)(decoder_inputs)
-d = HDense(256, activation="relu", beta=0, kq_conf=kq_conf_4)(d)
-d = HDense(784, activation="linear", beta=0, kq_conf=kq_conf_4)(d)
+d = HDense(256, activation="relu", beta=beta, kq_conf=kq_conf_4)(d)
+d = HDense(784, activation="linear", beta=beta, kq_conf=kq_conf_4)(d)
 # outputs = HDense(784, activation="sigmoid", beta=0, kq_conf=kq_conf_4)(d)
 # outputs = layers.Activation("sigmoid")(d)
-outputs = HActivation("sigmoid", beta=0, paq_conf=paq_conf)(d)
+outputs = HActivation("sigmoid", beta=beta, paq_conf=paq_conf)(d)
 
 decoder = keras.Model(decoder_inputs, outputs, name="decoder")
 decoded = decoder(z)
