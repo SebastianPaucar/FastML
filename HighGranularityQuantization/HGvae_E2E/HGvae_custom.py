@@ -162,7 +162,7 @@ class VariationalAutoEncoder(Model):
         #####
 
         ##### Refactoring Chang results for HGQ
-        log_var_latent_layer = vae.get_layer("latent_log_var").weights
+        log_var_latent_layer = self.encoder.get_layer("latent_log_var").weights
         for var in log_var_latent_layer:
             # zero only the kernel and bias
             if "kernel" in var.name or "bias" in var.name:
