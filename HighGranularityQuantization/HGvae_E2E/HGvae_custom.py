@@ -157,10 +157,17 @@ class VariationalAutoEncoder(Model):
         ###.........
 
         ##### Taken from Chang
-        log_var_k, log_var_b = self.encoder.get_layer('latent_log_var').get_weights()
-        self.encoder.get_layer('latent_log_var').set_weights([log_var_k*0, log_var_b*0])
+#        log_var_k, log_var_b = self.encoder.get_layer('latent_log_var').get_weights()
+#        self.encoder.get_layer('latent_log_var').set_weights([log_var_k*0, log_var_b*0])
         #####
 
+        ##### Refactoring Chang results for HGQ
+        log_var_latent_layer = vae.get_layer("latent_log_var").weights
+        for var in log_var_latent_layer:
+            # zero only the kernel and bias
+            if "kernel" in var.name or "bias" in var.name:
+                var.assign(tf.zeros_like(var))
+        #####
     def train_step(self, data):
         data_in, target = data
         with tf.GradientTape() as tape:
