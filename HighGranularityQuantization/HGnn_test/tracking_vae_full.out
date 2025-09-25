@@ -1,0 +1,153 @@
+(hgq) [u6059911@notchpeak2:HGnn_test]$ python HGvae_test.py 
+2025-09-25 17:22:47.265873: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2025-09-25 17:22:47.265930: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2025-09-25 17:22:47.267249: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2025-09-25 17:22:47.274559: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-25 17:22:49.104718: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2025-09-25 17:22:51.376395: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1929] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 1660 MB memory:  -> device: 0, name: NVIDIA GeForce GT 1030, pci bus id: 0000:86:00.0, compute capability: 6.1
+Train: (60000, 784)  Test: (10000, 784)
+2025-09-25 17:22:52.180946: I external/local_xla/xla/service/service.cc:168] XLA service 0x6e83470 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-09-25 17:22:52.180992: I external/local_xla/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce GT 1030, Compute Capability 6.1
+2025-09-25 17:22:52.211306: I external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:454] Loaded cuDNN version 8903
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1758842572.296242 1452354 device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+WARNING:tensorflow:5 out of the last 5 calls to <function HGQ.minmax_reg_reset at 0x148b1c113a30> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+WARNING:tensorflow:6 out of the last 6 calls to <function HGQ.minmax_reg_reset at 0x148b1c0fb130> triggered tf.function retracing. Tracing is expensive and the excessive number of tracings could be due to (1) creating @tf.function repeatedly in a loop, (2) passing tensors with different shapes, (3) passing Python objects instead of tensors. For (1), please define your @tf.function outside of the loop. For (2), @tf.function has reduce_retracing=True option that can avoid unnecessary retracing. For (3), please refer to https://www.tensorflow.org/guide/function#controlling_retracing and https://www.tensorflow.org/api_docs/python/tf/function for  more details.
+Model: "quantized_vae"
+__________________________________________________________________________________________________
+ Layer (type)                Output Shape                 Param #   Connected to                  
+==================================================================================================
+ input_1 (InputLayer)        [(None, 784)]                0         []                            
+                                                                                                  
+ h_quantize (HQuantize)      (None, 784)                  786       ['input_1[0][0]']             
+                                                                                                  
+ h_dense (HDense)            (None, 256)                  401922    ['h_quantize[0][0]']          
+                                                                                                  
+ latent_mean (HDense)        (None, 16)                   8226      ['h_dense[0][0]']             
+                                                                                                  
+ latent_log_var (HDense)     (None, 16)                   8226      ['h_dense[0][0]']             
+                                                                                                  
+ lambda (Lambda)             (None, 16)                   0         ['latent_mean[0][0]',         
+                                                                     'latent_log_var[0][0]']      
+                                                                                                  
+ decoder (Functional)        (None, 784)                  412488    ['lambda[0][0]']              
+                                                                                                  
+ tf.__operators__.add (TFOp  (None, 16)                   0         ['latent_log_var[0][0]']      
+ Lambda)                                                                                          
+                                                                                                  
+ tf.math.square (TFOpLambda  (None, 16)                   0         ['latent_mean[0][0]']         
+ )                                                                                                
+                                                                                                  
+ tf.cast (TFOpLambda)        (None, 784)                  0         ['input_1[0][0]']             
+                                                                                                  
+ tf.convert_to_tensor (TFOp  (None, 784)                  0         ['decoder[0][0]']             
+ Lambda)                                                                                          
+                                                                                                  
+ tf.math.subtract (TFOpLamb  (None, 16)                   0         ['tf.__operators__.add[0][0]',
+ da)                                                                 'tf.math.square[0][0]']      
+                                                                                                  
+ tf.math.exp (TFOpLambda)    (None, 16)                   0         ['latent_log_var[0][0]']      
+                                                                                                  
+ tf.keras.backend.binary_cr  (None, 784)                  0         ['tf.cast[0][0]',             
+ ossentropy (TFOpLambda)                                             'tf.convert_to_tensor[0][0]']
+                                                                                                  
+ tf.math.subtract_1 (TFOpLa  (None, 16)                   0         ['tf.math.subtract[0][0]',    
+ mbda)                                                               'tf.math.exp[0][0]']         
+                                                                                                  
+ tf.math.reduce_mean (TFOpL  (None,)                      0         ['tf.keras.backend.binary_cros
+ ambda)                                                             sentropy[0][0]']              
+                                                                                                  
+ tf.math.reduce_sum_1 (TFOp  (None,)                      0         ['tf.math.subtract_1[0][0]']  
+ Lambda)                                                                                          
+                                                                                                  
+ tf.math.reduce_sum (TFOpLa  ()                           0         ['tf.math.reduce_mean[0][0]'] 
+ mbda)                                                                                            
+                                                                                                  
+ tf.math.multiply (TFOpLamb  (None,)                      0         ['tf.math.reduce_sum_1[0][0]']
+ da)                                                                                              
+                                                                                                  
+ tf.__operators__.add_1 (TF  (None,)                      0         ['tf.math.reduce_sum[0][0]',  
+ OpLambda)                                                           'tf.math.multiply[0][0]']    
+                                                                                                  
+ tf.math.reduce_mean_1 (TFO  ()                           0         ['tf.__operators__.add_1[0][0]
+ pLambda)                                                           ']                            
+                                                                                                  
+ add_loss (AddLoss)          ()                           0         ['tf.math.reduce_mean_1[0][0]'
+                                                                    ]                             
+                                                                                                  
+==================================================================================================
+Total params: 831648 (3.17 MB)
+Trainable params: 831632 (3.17 MB)
+Non-trainable params: 16 (64.00 Byte)
+__________________________________________________________________________________________________
+Layer 'latent_log_var' weight tensors:
+  Name: latent_log_var/kernel:0, shape: (256, 16)
+  Name: latent_log_var/bias:0, shape: (16,)
+  Name: latent_log_var/kernel_bw:0, shape: (256, 16)
+  Name: latent_log_var/activation_bw:0, shape: (1, 16)
+  Name: beta:0, shape: ()
+  Name: latent_log_var/bops:0, shape: ()
+
+[DEBUG] Layer 'latent_log_var' has 6 weight tensors.
+   Tensor 0: shape=(256, 16), dtype=float32
+   First few values: [ 0.13136691 -0.14467698  0.03856823 -0.11586022 -0.04255602]
+   Tensor 1: shape=(16,), dtype=float32
+   First few values: [0. 0. 0. 0. 0.]
+   Tensor 2: shape=(256, 16), dtype=float32
+   First few values: [10.928326 10.789093 12.696444 11.109543 12.554493]
+   Tensor 3: shape=(1, 16), dtype=float32
+   First few values: [2. 2. 2. 2. 2.]
+   Tensor 4: shape=(), dtype=float32
+   First few values: [0.]
+   Tensor 5: shape=(), dtype=float32
+   First few values: [0.]
+[DEBUG] Weights of 'latent_log_var' were reset to zeros.
+   Tensor 0: unique values=[0.] (total unique=1)
+   Tensor 1: unique values=[0.] (total unique=1)
+   Tensor 2: unique values=[0.] (total unique=1)
+   Tensor 3: unique values=[0.] (total unique=1)
+   Tensor 4: unique values=[0.] (total unique=1)
+   Tensor 5: unique values=[0.] (total unique=1)
+Epoch 1/10
+2025-09-25 17:22:59.783706: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:269] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+W0000 00:00:1758842580.604952 1453115 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+W0000 00:00:1758842583.584491 1453112 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+W0000 00:00:1758842594.984693 1453115 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+W0000 00:00:1758842599.525421 1453110 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+W0000 00:00:1758842604.012945 1453109 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+Epoch 1: avg per-pixel loss = 0.066331, val = 0.061278
+469/469 - 32s - loss: 52.0035 - val_loss: 48.0418 - bops: 11122321.0000 - 32s/epoch - 68ms/step
+Epoch 2/10
+W0000 00:00:1758842615.274166 1453111 graph_launch.cc:671] Fallback to op-by-op mode because memset node breaks graph update
+Epoch 2: avg per-pixel loss = 0.060130, val = 0.056767
+469/469 - 9s - loss: 47.1416 - val_loss: 44.5051 - bops: 10479977.0000 - 9s/epoch - 20ms/step
+Epoch 3/10
+Epoch 3: avg per-pixel loss = 0.056113, val = 0.053996
+469/469 - 7s - loss: 43.9925 - val_loss: 42.3325 - bops: 9993016.0000 - 7s/epoch - 15ms/step
+Epoch 4/10
+Epoch 4: avg per-pixel loss = 0.054549, val = 0.052977
+469/469 - 7s - loss: 42.7664 - val_loss: 41.5342 - bops: 9376196.0000 - 7s/epoch - 15ms/step
+Epoch 5/10
+Epoch 5: avg per-pixel loss = 0.053790, val = 0.052207
+469/469 - 7s - loss: 42.1716 - val_loss: 40.9305 - bops: 8839458.0000 - 7s/epoch - 14ms/step
+Epoch 6/10
+Epoch 6: avg per-pixel loss = 0.053309, val = 0.052190
+469/469 - 7s - loss: 41.7945 - val_loss: 40.9172 - bops: 8462020.0000 - 7s/epoch - 15ms/step
+Epoch 7/10
+Epoch 7: avg per-pixel loss = 0.053000, val = 0.051727
+469/469 - 7s - loss: 41.5517 - val_loss: 40.5540 - bops: 7748055.0000 - 7s/epoch - 14ms/step
+Epoch 8/10
+Epoch 8: avg per-pixel loss = 0.052450, val = 0.050884
+469/469 - 7s - loss: 41.1206 - val_loss: 39.8931 - bops: 7264748.0000 - 7s/epoch - 14ms/step
+Epoch 9/10
+Epoch 9: avg per-pixel loss = 0.051624, val = 0.050230
+469/469 - 7s - loss: 40.4731 - val_loss: 39.3801 - bops: 6854480.0000 - 7s/epoch - 15ms/step
+Epoch 10/10
+Epoch 10: avg per-pixel loss = 0.050960, val = 0.049576
+469/469 - 7s - loss: 39.9527 - val_loss: 38.8678 - bops: 6461140.0000 - 7s/epoch - 14ms/step
+
+Generating samples...
+1/1 [==============================] - 1s 1s/step
+Reconstructed sample shape: (10, 784)
+
