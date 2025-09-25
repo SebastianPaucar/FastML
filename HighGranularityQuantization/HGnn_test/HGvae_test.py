@@ -5,6 +5,8 @@ from HGQ.layers import HQuantize, HDense, HActivation
 from HGQ.utils.utils import get_default_kq_conf, get_default_paq_conf
 from HGQ import ResetMinMax, FreeBOPs
 import numpy as np
+from tensorflow.keras.callbacks import LambdaCallback
+
 
 tf.config.optimizer.set_jit(True)
 
@@ -21,6 +23,7 @@ kq_conf_4 = get_default_kq_conf()
 kq_conf_4["init_bw"] = 4  # decoder
 
 latent_dim = 16
+input_dim = 784  # 28x28 pixels in MNIST
 
 # ==========
 # 2. Dataset (MNIST)
@@ -124,11 +127,20 @@ except ValueError:
 
 
 
+pixel_loss_cb = LambdaCallback(
+    on_epoch_end=lambda epoch, logs: print(
+        f"Epoch {epoch+1}: avg per-pixel loss = {logs['loss'] / input_dim:.6f}, "
+        f"val = {logs['val_loss'] / input_dim:.6f}"
+    )
+)
+
+
+
 
 # ==========
 # 5. Train
 # ==========
-callbacks = [ResetMinMax(), FreeBOPs()]
+callbacks = [ResetMinMax(), FreeBOPs(),pixel_loss_cb]
 
 vae.fit(
     x_train, x_train,
