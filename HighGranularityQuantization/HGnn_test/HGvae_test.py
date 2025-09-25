@@ -115,10 +115,16 @@ try:
         print(f"   Tensor {i}: shape={w.shape}, dtype={w.dtype}")
         print(f"   First few values: {w.flatten()[:5]}")  # show first 5 entries
 
+
+    for var in latent_layer.weights:
+        # zero only the kernel and bias
+        if "kernel" in var.name or "bias" in var.name:
+            var.assign(tf.zeros_like(var))
+
     # Example: zero out all weights safely
-    zeroed = [np.zeros_like(w) for w in weights]
-    latent_layer.set_weights(zeroed)
-    print("[DEBUG] Weights of 'latent_log_var' were reset to zeros.")
+#    zeroed = [np.zeros_like(w) for w in weights]
+ #   latent_layer.set_weights(zeroed)
+    print("[DEBUG] Weights of kernal and bias in 'latent_log_var' were reset to zeros.")
 
     new_weights = latent_layer.get_weights()
     for i, w in enumerate(new_weights):
