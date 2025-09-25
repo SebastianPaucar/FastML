@@ -4,6 +4,7 @@ from keras import layers
 from HGQ.layers import HQuantize, HDense, HActivation
 from HGQ.utils.utils import get_default_kq_conf, get_default_paq_conf
 from HGQ import ResetMinMax, FreeBOPs
+import numpy as np
 
 tf.config.optimizer.set_jit(True)
 
@@ -85,15 +86,42 @@ vae.summary()
 # ==========
 # 4b. Inspect latent_log_var layer weights
 # ==========
-latent_log_var_layer = [l for l in vae.layers if l.name.endswith("latent_log_var")]
-if latent_log_var_layer:
-    layer = latent_log_var_layer[0]
-    weights = layer.get_weights()
-    print(f"\n[DEBUG] Layer '{layer.name}' has {len(weights)} weight tensors.")
+#latent_log_var_layer = [l for l in vae.layers if l.name.endswith("latent_log_var")]
+#if latent_log_var_layer:
+#    layer = latent_log_var_layer[0]
+#    weights = layer.get_weights()
+#    print(f"\n[DEBUG] Layer '{layer.name}' has {len(weights)} weight tensors.")
+#    for i, w in enumerate(weights):
+#        print(f"   Tensor {i}: shape={w.shape}, dtype={w.dtype}")
+#else:
+#    print("\n[DEBUG] No layer named 'latent_log_var' found in the model.")
+
+
+# ==========
+# 4c. Inspect latent_log_var layer weights (via get_layer)
+# ==========
+try:
+    latent_layer = vae.get_layer("latent_log_var")
+    weights = latent_layer.get_weights()
+    print(f"\n[DEBUG] Layer '{latent_layer.name}' has {len(weights)} weight tensors.")
     for i, w in enumerate(weights):
         print(f"   Tensor {i}: shape={w.shape}, dtype={w.dtype}")
-else:
+        print(f"   First few values: {w.flatten()[:5]}")  # show first 5 entries
+
+    # Example: zero out all weights safely
+    zeroed = [np.zeros_like(w) for w in weights]
+    latent_layer.set_weights(zeroed)
+    print("[DEBUG] Weights of 'latent_log_var' were reset to zeros.")
+
+    new_weights = latent_layer.get_weights()
+    for i, w in enumerate(new_weights):
+        unique_vals = np.unique(w)
+        print(f"   Tensor {i}: unique values={unique_vals[:10]} (total unique={len(unique_vals)})")
+
+
+except ValueError:
     print("\n[DEBUG] No layer named 'latent_log_var' found in the model.")
+
 
 
 
