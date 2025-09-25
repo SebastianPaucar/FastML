@@ -36,7 +36,7 @@ def get_encoder(config):
     
     
     encoder_input = keras.Input(shape=(features,))
-    x = HQuantize(beta=beta, paq_conf=ap_initial_data)(encoder_input)
+    x = HQuantize(beta=beta, paq_conf=paq_conf)(encoder_input)
         
     for i,node in enumerate(encoder_config["nodes"]):
             x = HDense(node,

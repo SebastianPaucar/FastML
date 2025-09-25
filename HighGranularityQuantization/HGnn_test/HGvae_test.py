@@ -39,8 +39,8 @@ print("Train:", x_train.shape, " Test:", x_test.shape)
 inputs = keras.Input(shape=(784,))
 x = HQuantize(beta=0, paq_conf=paq_conf)(inputs)
 x = HDense(256, activation="relu", beta=0, kq_conf=kq_conf_8)(x)
-z_mean = HDense(latent_dim, beta=0, kq_conf=kq_conf_8)(x)
-z_log_var = HDense(latent_dim, beta=0, kq_conf=kq_conf_8)(x)
+z_mean = HDense(latent_dim, beta=0, kq_conf=kq_conf_8, name="latent_mean")(x)
+z_log_var = HDense(latent_dim, beta=0, kq_conf=kq_conf_8, name="latent_log_var")(x)
 
 # Reparameterization trick
 def sampling(args):
@@ -80,6 +80,22 @@ vae_loss = tf.reduce_mean(recon_loss + kl_loss)
 vae.add_loss(vae_loss)
 vae.compile(optimizer="adam")
 vae.summary()
+
+
+# ==========
+# 4b. Inspect latent_log_var layer weights
+# ==========
+latent_log_var_layer = [l for l in vae.layers if l.name.endswith("latent_log_var")]
+if latent_log_var_layer:
+    layer = latent_log_var_layer[0]
+    weights = layer.get_weights()
+    print(f"\n[DEBUG] Layer '{layer.name}' has {len(weights)} weight tensors.")
+    for i, w in enumerate(weights):
+        print(f"   Tensor {i}: shape={w.shape}, dtype={w.dtype}")
+else:
+    print("\n[DEBUG] No layer named 'latent_log_var' found in the model.")
+
+
 
 # ==========
 # 5. Train
