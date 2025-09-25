@@ -105,6 +105,10 @@ vae.summary()
 # ==========
 try:
     latent_layer = vae.get_layer("latent_log_var")
+    print(f"Layer '{latent_layer.name}' weight tensors:")
+    for w in latent_layer.weights:
+        print(f"  Name: {w.name}, shape: {w.shape}")
+
     weights = latent_layer.get_weights()
     print(f"\n[DEBUG] Layer '{latent_layer.name}' has {len(weights)} weight tensors.")
     for i, w in enumerate(weights):
