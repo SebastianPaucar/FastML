@@ -68,3 +68,14 @@ vae.fit(
     verbose=2
 )
 
+# ===== Cut model at latent mean =====
+from tensorflow.keras import Model
+
+encoder_to_mean = Model(
+    inputs=vae.encoder.input,
+    outputs=vae.encoder.get_layer("latent_mean").output
+)
+
+print("\n[INFO] Encoder-to-mean model summary:")
+encoder_to_mean.summary()
+
