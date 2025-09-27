@@ -62,7 +62,7 @@ callbacks = [ResetMinMax(), FreeBOPs(), pixel_loss_cb]
 vae.fit(
     x_train, x_train,
     validation_data=(x_test, x_test),
-    epochs=10,
+    epochs=5,
     batch_size=128,
     callbacks=callbacks,
     verbose=2
@@ -78,4 +78,6 @@ encoder_to_mean = Model(
 
 print("\n[INFO] Encoder-to-mean model summary:")
 encoder_to_mean.summary()
+encoder_to_mean.save("encoder_to_mean_model.h5")  # cut encoder
+print("\n[INFO] Model saved as encoder_to_mean_model.h5")
 
