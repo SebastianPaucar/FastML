@@ -32,9 +32,7 @@ def get_encoder(config):
     # Kernel quantizer config (weights)
     kq_conf = get_default_kq_conf()
     kq_conf['init_bw'] = ap_initial_kernel
-    
-    
-    
+        
     encoder_input = keras.Input(shape=(features,))
     x = HQuantize(beta=beta, paq_conf=paq_conf)(encoder_input)
         
@@ -209,5 +207,6 @@ class VariationalAutoEncoder(Model):
             "reco_loss": self.reconstruction_val_loss_tracker.result(),
             "kl_loss": self.kl_val_loss_tracker.result()
         }
+
 
 

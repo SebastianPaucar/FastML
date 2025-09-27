@@ -33,19 +33,6 @@ kl_loss = lambda z_mean, z_log_var: -0.5 * tf.reduce_sum(
 vae = VariationalAutoEncoder(config, reco_loss, kl_loss)
 vae.compile(optimizer=tf.keras.optimizers.Adam())
 
-# ===== Verification print =====
-print("Class type:", type(vae))
-print("Base classes:", vae.__class__.__bases__)
-print("Is instance of keras.Model?", isinstance(vae, tf.keras.Model))
-print("Keras version:", keras.__version__)
-print("TensorFlow version:", tf.__version__)
-print("\nLayers inside VAE:")
-for layer in vae.layers:
-    print(f"  - {layer.name} ({layer.__class__.__name__})")
-
-#vae.summary()
-
-
 # ===== Optional callbacks =====
 from HGQ import ResetMinMax, FreeBOPs
 from keras.callbacks import LambdaCallback
